@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>You-Dont-Know-JS/ch4.md at master · getify/You-Dont-Know-JS · GitHub</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre"><div class="calibre_navbar">| <a href="../article_6/index.html">Next</a> | <a href="../index.html#article_5">Section menu</a> | <a href="../../index.html#feed_0">Main menu</a> | <a href="../article_4/index.html">Previous</a> | <hr class="calibre6"/>
+</div><div class="calibre5"><div itemprop="text" class="calibre5"><h1 class="calibre7"><a id="user-content-you-dont-know-js-scope--closures" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_5/ch4.xhtml#you-dont-know-js-scope--closures"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>You Don't Know JS: Scope &amp; Closures</h1>
+<h1 class="calibre7"><a id="user-content-chapter-4-hoisting" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_5/ch4.xhtml#chapter-4-hoisting"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Chapter 4: Hoisting</h1>
+<p class="calibre8">By now, you should be fairly comfortable with the idea of scope, and how variables are attached to different levels of scope depending on where and how they are declared. Both function scope and block scope behave by the same rules in this regard: any variable declared within a scope is attached to that scope.</p>
+<p class="calibre8">But there's a subtle detail of how scope attachment works with declarations that appear in various locations within a scope, and that detail is what we will examine here.</p>
+<h2 class="calibre10"><a id="user-content-chicken-or-the-egg" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_5/ch4.xhtml#chicken-or-the-egg"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Chicken Or The Egg?</h2>
+<p class="calibre8">There's a temptation to think that all of the code you see in a JavaScript program is interpreted line-by-line, top-down in order, as the program executes. While that is substantially true, there's one part of that assumption which can lead to incorrect thinking about your program.</p>
+<p class="calibre8">Consider this code:</p>
+<div class="calibre5"><pre class="calibre16">a <span>=</span> <span>2</span>;
+
+<span>var</span> a;
+
+<span>console</span>.<span>log</span>( a );</pre></div>
+<p class="calibre8">What do you expect to be printed in the <code class="calibre14">console.log(..)</code> statement?</p>
+<p class="calibre8">Many developers would expect <code class="calibre14">undefined</code>, since the <code class="calibre14">var a</code> statement comes after the <code class="calibre14">a = 2</code>, and it would seem natural to assume that the variable is re-defined, and thus assigned the default <code class="calibre14">undefined</code>. However, the output will be <code class="calibre14">2</code>.</p>
+<p class="calibre8">Consider another piece of code:</p>
+<div class="calibre5"><pre class="calibre16"><span>console</span>.<span>log</span>( a );
+
+<span>var</span> a <span>=</span> <span>2</span>;</pre></div>
+<p class="calibre8">You might be tempted to assume that, since the previous snippet exhibited some less-than-top-down looking behavior, perhaps in this snippet, <code class="calibre14">2</code> will also be printed. Others may think that since the <code class="calibre14">a</code> variable is used before it is declared, this must result in a <code class="calibre14">ReferenceError</code> being thrown.</p>
+<p class="calibre8">Unfortunately, both guesses are incorrect. <code class="calibre14">undefined</code> is the output.</p>
+<p class="calibre8"><strong class="calibre12">So, what's going on here?</strong> It would appear we have a chicken-and-the-egg question. Which comes first, the declaration ("egg"), or the assignment ("chicken")?</p>
+<h2 class="calibre10"><a id="user-content-the-compiler-strikes-again" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_5/ch4.xhtml#the-compiler-strikes-again"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>The Compiler Strikes Again</h2>
+<p class="calibre8">To answer this question, we need to refer back to Chapter 1, and our discussion of compilers. Recall that the <em class="calibre9">Engine</em> actually will compile your JavaScript code before it interprets it. Part of the compilation phase was to find and associate all declarations with their appropriate scopes. Chapter 2 showed us that this is the heart of Lexical Scope.</p>
+<p class="calibre8">So, the best way to think about things is that all declarations, both variables and functions, are processed first, before any part of your code is executed.</p>
+<p class="calibre8">When you see <code class="calibre14">var a = 2;</code>, you probably think of that as one statement. But JavaScript actually thinks of it as two statements: <code class="calibre14">var a;</code> and <code class="calibre14">a = 2;</code>. The first statement, the declaration, is processed during the compilation phase. The second statement, the assignment, is left <strong class="calibre12">in place</strong> for the execution phase.</p>
+<p class="calibre8">Our first snippet then should be thought of as being handled like this:</p>
+<p class="calibre8">...where the first part is the compilation and the second part is the execution.</p>
+<p class="calibre8">Similarly, our second snippet is actually processed as:</p>
+<p class="calibre8">So, one way of thinking, sort of metaphorically, about this process, is that variable and function declarations are "moved" from where they appear in the flow of the code to the top of the code. This gives rise to the name "Hoisting".</p>
+<p class="calibre8">In other words, <strong class="calibre12">the egg (declaration) comes before the chicken (assignment)</strong>.</p>
+<p class="calibre8"><strong class="calibre12">Note:</strong> Only the declarations themselves are hoisted, while any assignments or other executable logic are left <em class="calibre9">in place</em>. If hoisting were to re-arrange the executable logic of our code, that could wreak havoc.</p>
+<div class="calibre5"><pre class="calibre16"><span>foo</span>();
+
+<span>function</span> <span>foo</span>() {
+	<span>console</span>.<span>log</span>( a ); <span><span>//</span> undefined</span>
+
+	<span>var</span> a <span>=</span> <span>2</span>;
+}</pre></div>
+<p class="calibre8">The function <code class="calibre14">foo</code>'s declaration (which in this case <em class="calibre9">includes</em> the implied value of it as an actual function) is hoisted, such that the call on the first line is able to execute.</p>
+<p class="calibre8">It's also important to note that hoisting is <strong class="calibre12">per-scope</strong>. So while our previous snippets were simplified in that they only included global scope, the <code class="calibre14">foo(..)</code> function we are now examining itself exhibits that <code class="calibre14">var a</code> is hoisted to the top of <code class="calibre14">foo(..)</code> (not, obviously, to the top of the program). So the program can perhaps be more accurately interpreted like this:</p>
+<div class="calibre5"><pre class="calibre16"><span>function</span> <span>foo</span>() {
+	<span>var</span> a;
+
+	<span>console</span>.<span>log</span>( a ); <span><span>//</span> undefined</span>
+
+	a <span>=</span> <span>2</span>;
+}
+
+<span>foo</span>();</pre></div>
+<p class="calibre8">Function declarations are hoisted, as we just saw. But function expressions are not.</p>
+<div class="calibre5"><pre class="calibre16"><span>foo</span>(); <span><span>//</span> not ReferenceError, but TypeError!</span>
+
+<span>var</span> <span>foo</span> <span>=</span> <span>function</span> <span>bar</span>() {
+	<span><span>//</span> ...</span>
+};</pre></div>
+<p class="calibre8">The variable identifier <code class="calibre14">foo</code> is hoisted and attached to the enclosing scope (global) of this program, so <code class="calibre14">foo()</code> doesn't fail as a <code class="calibre14">ReferenceError</code>. But <code class="calibre14">foo</code> has no value yet (as it would if it had been a true function declaration instead of expression). So, <code class="calibre14">foo()</code> is attempting to invoke the <code class="calibre14">undefined</code> value, which is a <code class="calibre14">TypeError</code> illegal operation.</p>
+<p class="calibre8">Also recall that even though it's a named function expression, the name identifier is not available in the enclosing scope:</p>
+<div class="calibre5"><pre class="calibre16"><span>foo</span>(); <span><span>//</span> TypeError</span>
+<span>bar</span>(); <span><span>//</span> ReferenceError</span>
+
+<span>var</span> <span>foo</span> <span>=</span> <span>function</span> <span>bar</span>() {
+	<span><span>//</span> ...</span>
+};</pre></div>
+<p class="calibre8">This snippet is more accurately interpreted (with hoisting) as:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> foo;
+
+<span>foo</span>(); <span><span>//</span> TypeError</span>
+<span>bar</span>(); <span><span>//</span> ReferenceError</span>
+
+<span>foo</span> <span>=</span> <span>function</span>() {
+	<span>var</span> bar <span>=</span> <span>...</span>self<span>...</span>
+	<span><span>//</span> ...</span>
+}</pre></div>
+<h2 class="calibre10"><a id="user-content-functions-first" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_5/ch4.xhtml#functions-first"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Functions First</h2>
+<p class="calibre8">Both function declarations and variable declarations are hoisted. But a subtle detail (that <em class="calibre9">can</em> show up in code with multiple "duplicate" declarations) is that functions are hoisted first, and then variables.</p>
+<p class="calibre8">Consider:</p>
+<div class="calibre5"><pre class="calibre16"><span>foo</span>(); <span><span>//</span> 1</span>
+
+<span>var</span> foo;
+
+<span>function</span> <span>foo</span>() {
+	<span>console</span>.<span>log</span>( <span>1</span> );
+}
+
+<span>foo</span> <span>=</span> <span>function</span>() {
+	<span>console</span>.<span>log</span>( <span>2</span> );
+};</pre></div>
+<p class="calibre8"><code class="calibre14">1</code> is printed instead of <code class="calibre14">2</code>! This snippet is interpreted by the <em class="calibre9">Engine</em> as:</p>
+<div class="calibre5"><pre class="calibre16"><span>function</span> <span>foo</span>() {
+	<span>console</span>.<span>log</span>( <span>1</span> );
+}
+
+<span>foo</span>(); <span><span>//</span> 1</span>
+
+<span>foo</span> <span>=</span> <span>function</span>() {
+	<span>console</span>.<span>log</span>( <span>2</span> );
+};</pre></div>
+<p class="calibre8">Notice that <code class="calibre14">var foo</code> was the duplicate (and thus ignored) declaration, even though it came before the <code class="calibre14">function foo()...</code> declaration, because function declarations are hoisted before normal variables.</p>
+<p class="calibre8">While multiple/duplicate <code class="calibre14">var</code> declarations are effectively ignored, subsequent function declarations <em class="calibre9">do</em> override previous ones.</p>
+<div class="calibre5"><pre class="calibre16"><span>foo</span>(); <span><span>//</span> 3</span>
+
+<span>function</span> <span>foo</span>() {
+	<span>console</span>.<span>log</span>( <span>1</span> );
+}
+
+<span>var</span> <span>foo</span> <span>=</span> <span>function</span>() {
+	<span>console</span>.<span>log</span>( <span>2</span> );
+};
+
+<span>function</span> <span>foo</span>() {
+	<span>console</span>.<span>log</span>( <span>3</span> );
+}</pre></div>
+<p class="calibre8">While this all may sound like nothing more than interesting academic trivia, it highlights the fact that duplicate definitions in the same scope are a really bad idea and will often lead to confusing results.</p>
+<p class="calibre8">Function declarations that appear inside of normal blocks typically hoist to the enclosing scope, rather than being conditional as this code implies:</p>
+<div class="calibre5"><pre class="calibre16"><span>foo</span>(); <span><span>//</span> "b"</span>
+
+<span>var</span> a <span>=</span> <span>true</span>;
+<span>if</span> (a) {
+   <span>function</span> <span>foo</span>() { <span>console</span>.<span>log</span>( <span><span>"</span>a<span>"</span></span> ); }
+}
+<span>else</span> {
+   <span>function</span> <span>foo</span>() { <span>console</span>.<span>log</span>( <span><span>"</span>b<span>"</span></span> ); }
+}</pre></div>
+<p class="calibre8">However, it's important to note that this behavior is not reliable and is subject to change in future versions of JavaScript, so it's probably best to avoid declaring functions in blocks.</p>
+<h2 class="calibre10"><a id="user-content-review-tldr" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_5/ch4.xhtml#review-tldr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Review (TL;DR)</h2>
+<p class="calibre8">We can be tempted to look at <code class="calibre14">var a = 2;</code> as one statement, but the JavaScript <em class="calibre9">Engine</em> does not see it that way. It sees <code class="calibre14">var a</code> and <code class="calibre14">a = 2</code> as two separate statements, the first one a compiler-phase task, and the second one an execution-phase task.</p>
+<p class="calibre8">What this leads to is that all declarations in a scope, regardless of where they appear, are processed <em class="calibre9">first</em> before the code itself is executed. You can visualize this as declarations (variables and functions) being "moved" to the top of their respective scopes, which we call "hoisting".</p>
+<p class="calibre8">Declarations themselves are hoisted, but assignments, even assignments of function expressions, are <em class="calibre9">not</em> hoisted.</p>
+<p class="calibre8">Be careful about duplicate declarations, especially mixed between normal var declarations and function declarations -- peril awaits if you do!</p>
+</div>
+</div><div class="calibre_navbar">
+<hr class="calibre6"/>
+<p class="calibre11">This article was downloaded by <strong class="calibre12">calibre</strong> from <a href="https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/ch4.md" rel="calibre-downloaded-from">https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/ch4.md</a></p>
+<br class="calibre5"/><br class="calibre5"/> | <a href="../index.html#article_5">Section menu</a> | <a href="../../index.html#feed_0">Main menu</a> | </div></body></html>

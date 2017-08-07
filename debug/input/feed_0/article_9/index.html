@@ -1,0 +1,107 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>You-Dont-Know-JS/apC.md at master · getify/You-Dont-Know-JS · GitHub</title><style type="text/css" title="override_css">
+            .article_date {
+                color: gray; font-family: monospace;
+            }
+
+            .article_description {
+                text-indent: 0pt;
+            }
+
+            a.article {
+                font-weight: bold; text-align:left;
+            }
+
+            a.feed {
+                font-weight: bold;
+            }
+
+            .calibre_navbar {
+                font-family:monospace;
+            }
+    
+
+</style></head><body><div class="calibre_navbar calibre_rescale_70" style="text-align:center">| <a href="../article_10/index.html">Next</a> | <a href="../index.html#article_9">Section menu</a> | <a href="../../index.html#feed_0">Main menu</a> | <a href="../article_8/index.html">Previous</a> | <hr />
+</div><div><div itemprop="text" class="markdown-body entry-content"><h1><a id="user-content-you-dont-know-js-scope--closures" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_9/apC.xhtml#you-dont-know-js-scope--closures"><svg viewbox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"></path></svg></a>You Don't Know JS: Scope & Closures</h1>
+<h1><a id="user-content-appendix-c-lexical-this" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_9/apC.xhtml#appendix-c-lexical-this"><svg viewbox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"></path></svg></a>Appendix C: Lexical-this</h1>
+<p>Though this title does not address the <code>this</code> mechanism in any detail, there's one ES6 topic which relates <code>this</code> to lexical scope in an important way, which we will quickly examine.</p>
+<p>ES6 adds a special syntactic form of function declaration called the "arrow function". It looks like this:</p>
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> <span class="pl-en">foo</span> <span class="pl-k">=</span> <span class="pl-smi">a</span> <span class="pl-k">=></span> {
+	<span class="pl-en">console</span>.<span class="pl-c1">log</span>( a );
+};
+
+<span class="pl-en">foo</span>( <span class="pl-c1">2</span> ); <span class="pl-c"><span class="pl-c">//</span> 2</span></pre></div>
+<p>The so-called "fat arrow" is often mentioned as a short-hand for the <em>tediously verbose</em> (sarcasm) <code>function</code> keyword.</p>
+<p>But there's something much more important going on with arrow-functions that has nothing to do with saving keystrokes in your declaration.</p>
+<p>Briefly, this code suffers a problem:</p>
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> obj <span class="pl-k">=</span> {
+	id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>awesome<span class="pl-pds">"</span></span>,
+	<span class="pl-en">cool</span><span class="pl-k">:</span> <span class="pl-k">function</span> <span class="pl-en">coolFn</span>() {
+		<span class="pl-en">console</span>.<span class="pl-c1">log</span>( <span class="pl-c1">this</span>.<span class="pl-c1">id</span> );
+	}
+};
+
+<span class="pl-k">var</span> id <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>not awesome<span class="pl-pds">"</span></span>;
+
+<span class="pl-smi">obj</span>.<span class="pl-en">cool</span>(); <span class="pl-c"><span class="pl-c">//</span> awesome</span>
+
+<span class="pl-c1">setTimeout</span>( <span class="pl-smi">obj</span>.<span class="pl-smi">cool</span>, <span class="pl-c1">100</span> ); <span class="pl-c"><span class="pl-c">//</span> not awesome</span></pre></div>
+<p>The problem is the loss of <code>this</code> binding on the <code>cool()</code> function. There are various ways to address that problem, but one often-repeated solution is <code>var self = this;</code>.</p>
+<p>That might look like:</p>
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> obj <span class="pl-k">=</span> {
+	count<span class="pl-k">:</span> <span class="pl-c1">0</span>,
+	<span class="pl-en">cool</span><span class="pl-k">:</span> <span class="pl-k">function</span> <span class="pl-en">coolFn</span>() {
+		<span class="pl-k">var</span> self <span class="pl-k">=</span> <span class="pl-c1">this</span>;
+
+		<span class="pl-k">if</span> (<span class="pl-smi">self</span>.<span class="pl-smi">count</span> <span class="pl-k"><</span> <span class="pl-c1">1</span>) {
+			<span class="pl-c1">setTimeout</span>( <span class="pl-k">function</span> <span class="pl-en">timer</span>(){
+				<span class="pl-smi">self</span>.<span class="pl-smi">count</span><span class="pl-k">++</span>;
+				<span class="pl-en">console</span>.<span class="pl-c1">log</span>( <span class="pl-s"><span class="pl-pds">"</span>awesome?<span class="pl-pds">"</span></span> );
+			}, <span class="pl-c1">100</span> );
+		}
+	}
+};
+
+<span class="pl-smi">obj</span>.<span class="pl-en">cool</span>(); <span class="pl-c"><span class="pl-c">//</span> awesome?</span></pre></div>
+<p>Without getting too much into the weeds here, the <code>var self = this</code> "solution" just dispenses with the whole problem of understanding and properly using <code>this</code> binding, and instead falls back to something we're perhaps more comfortable with: lexical scope. <code>self</code> becomes just an identifier that can be resolved via lexical scope and closure, and cares not what happened to the <code>this</code> binding along the way.</p>
+<p>People don't like writing verbose stuff, especially when they do it over and over again. So, a motivation of ES6 is to help alleviate these scenarios, and indeed, <em>fix</em> common idiom problems, such as this one.</p>
+<p>The ES6 solution, the arrow-function, introduces a behavior called "lexical this".</p>
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> obj <span class="pl-k">=</span> {
+	count<span class="pl-k">:</span> <span class="pl-c1">0</span>,
+	<span class="pl-en">cool</span><span class="pl-k">:</span> <span class="pl-k">function</span> <span class="pl-en">coolFn</span>() {
+		<span class="pl-k">if</span> (<span class="pl-c1">this</span>.<span class="pl-smi">count</span> <span class="pl-k"><</span> <span class="pl-c1">1</span>) {
+			<span class="pl-c1">setTimeout</span>( () <span class="pl-k">=></span> { <span class="pl-c"><span class="pl-c">//</span> arrow-function ftw?</span>
+				<span class="pl-c1">this</span>.<span class="pl-smi">count</span><span class="pl-k">++</span>;
+				<span class="pl-en">console</span>.<span class="pl-c1">log</span>( <span class="pl-s"><span class="pl-pds">"</span>awesome?<span class="pl-pds">"</span></span> );
+			}, <span class="pl-c1">100</span> );
+		}
+	}
+};
+
+<span class="pl-smi">obj</span>.<span class="pl-en">cool</span>(); <span class="pl-c"><span class="pl-c">//</span> awesome?</span></pre></div>
+<p>The short explanation is that arrow-functions do not behave at all like normal functions when it comes to their <code>this</code> binding. They discard all the normal rules for <code>this</code> binding, and instead take on the <code>this</code> value of their immediate lexical enclosing scope, whatever it is.</p>
+<p>So, in that snippet, the arrow-function doesn't get its <code>this</code> unbound in some unpredictable way, it just "inherits" the <code>this</code> binding of the <code>cool()</code> function (which is correct if we invoke it as shown!).</p>
+<p>While this makes for shorter code, my perspective is that arrow-functions are really just codifying into the language syntax a common <em>mistake</em> of developers, which is to confuse and conflate "this binding" rules with "lexical scope" rules.</p>
+<p>Put another way: why go to the trouble and verbosity of using the <code>this</code> style coding paradigm, only to cut it off at the knees by mixing it with lexical references. It seems natural to embrace one approach or the other for any given piece of code, and not mix them in the same piece of code.</p>
+<p><strong>Note:</strong> one other detraction from arrow-functions is that they are anonymous, not named. See Chapter 3 for the reasons why anonymous functions are less desirable than named functions.</p>
+<p>A more appropriate approach, in my perspective, to this "problem", is to use and embrace the <code>this</code> mechanism correctly.</p>
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> obj <span class="pl-k">=</span> {
+	count<span class="pl-k">:</span> <span class="pl-c1">0</span>,
+	<span class="pl-en">cool</span><span class="pl-k">:</span> <span class="pl-k">function</span> <span class="pl-en">coolFn</span>() {
+		<span class="pl-k">if</span> (<span class="pl-c1">this</span>.<span class="pl-smi">count</span> <span class="pl-k"><</span> <span class="pl-c1">1</span>) {
+			<span class="pl-c1">setTimeout</span>( <span class="pl-k">function</span> <span class="pl-en">timer</span>(){
+				<span class="pl-c1">this</span>.<span class="pl-smi">count</span><span class="pl-k">++</span>; <span class="pl-c"><span class="pl-c">//</span> `this` is safe because of `bind(..)`</span>
+				<span class="pl-en">console</span>.<span class="pl-c1">log</span>( <span class="pl-s"><span class="pl-pds">"</span>more awesome<span class="pl-pds">"</span></span> );
+			}.<span class="pl-en">bind</span>( <span class="pl-c1">this</span> ), <span class="pl-c1">100</span> ); <span class="pl-c"><span class="pl-c">//</span> look, `bind()`!</span>
+		}
+	}
+};
+
+<span class="pl-smi">obj</span>.<span class="pl-en">cool</span>(); <span class="pl-c"><span class="pl-c">//</span> more awesome</span></pre></div>
+<p>Whether you prefer the new lexical-this behavior of arrow-functions, or you prefer the tried-and-true <code>bind()</code>, it's important to note that arrow-functions are <strong>not</strong> just about less typing of "function".</p>
+<p>They have an <em>intentional behavioral difference</em> that we should learn and understand, and if we so choose, leverage.</p>
+<p>Now that we fully understand lexical scoping (and closure!), understanding lexical-this should be a breeze!</p>
+</div>
+</div><div class="calibre_navbar calibre_rescale_70" style="text-align:center">
+<hr />
+<p style="text-align:left; max-width: 100%; overflow: hidden;">This article was downloaded by <strong>calibre</strong> from <a href="https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/apC.md" rel="calibre-downloaded-from">https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/apC.md</a></p>
+<br /><br /> | <a href="../index.html#article_9">Section menu</a> | <a href="../../index.html#feed_0">Main menu</a> | </div></body></html>

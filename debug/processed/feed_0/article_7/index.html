@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>You-Dont-Know-JS/apA.md at master · getify/You-Dont-Know-JS · GitHub</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre"><div class="calibre_navbar">| <a href="../article_8/index.html">Next</a> | <a href="../index.html#article_7">Section menu</a> | <a href="../../index.html#feed_0">Main menu</a> | <a href="../article_6/index.html">Previous</a> | <hr class="calibre6"/>
+</div><div class="calibre5"><div itemprop="text" class="calibre5"><h1 class="calibre7"><a id="user-content-you-dont-know-js-scope--closures" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_7/apA.xhtml#you-dont-know-js-scope--closures"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>You Don't Know JS: Scope &amp; Closures</h1>
+<h1 class="calibre7"><a id="user-content-appendix-a-dynamic-scope" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_7/apA.xhtml#appendix-a-dynamic-scope"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Appendix A: Dynamic Scope</h1>
+<p class="calibre8">In Chapter 2, we talked about "Dynamic Scope" as a contrast to the "Lexical Scope" model, which is how scope works in JavaScript (and in fact, most other languages).</p>
+<p class="calibre8">We will briefly examine dynamic scope, to hammer home the contrast. But, more importantly, dynamic scope actually is a near cousin to another mechanism (<code class="calibre14">this</code>) in JavaScript, which we covered in the "<em class="calibre9">this &amp; Object Prototypes</em>" title of this book series.</p>
+<p class="calibre8">As we saw in Chapter 2, lexical scope is the set of rules about how the <em class="calibre9">Engine</em> can look-up a variable and where it will find it. The key characteristic of lexical scope is that it is defined at author-time, when the code is written (assuming you don't cheat with <code class="calibre14">eval()</code> or <code class="calibre14">with</code>).</p>
+<p class="calibre8">Dynamic scope seems to imply, and for good reason, that there's a model whereby scope can be determined dynamically at runtime, rather than statically at author-time. That is in fact the case. Let's illustrate via code:</p>
+<div class="calibre5"><pre class="calibre16"><span>function</span> <span>foo</span>() {
+	<span>console</span>.<span>log</span>( a ); <span><span>//</span> 2</span>
+}
+
+<span>function</span> <span>bar</span>() {
+	<span>var</span> a <span>=</span> <span>3</span>;
+	<span>foo</span>();
+}
+
+<span>var</span> a <span>=</span> <span>2</span>;
+
+<span>bar</span>();</pre></div>
+<p class="calibre8">Lexical scope holds that the RHS reference to <code class="calibre14">a</code> in <code class="calibre14">foo()</code> will be resolved to the global variable <code class="calibre14">a</code>, which will result in value <code class="calibre14">2</code> being output.</p>
+<p class="calibre8">Dynamic scope, by contrast, doesn't concern itself with how and where functions and scopes are declared, but rather <strong class="calibre12">where they are called from</strong>. In other words, the scope chain is based on the call-stack, not the nesting of scopes in code.</p>
+<p class="calibre8">So, if JavaScript had dynamic scope, when <code class="calibre14">foo()</code> is executed, <strong class="calibre12">theoretically</strong> the code below would instead result in <code class="calibre14">3</code> as the output.</p>
+<div class="calibre5"><pre class="calibre16"><span>function</span> <span>foo</span>() {
+	<span>console</span>.<span>log</span>( a ); <span><span>//</span> 3  (not 2!)</span>
+}
+
+<span>function</span> <span>bar</span>() {
+	<span>var</span> a <span>=</span> <span>3</span>;
+	<span>foo</span>();
+}
+
+<span>var</span> a <span>=</span> <span>2</span>;
+
+<span>bar</span>();</pre></div>
+<p class="calibre8">How can this be? Because when <code class="calibre14">foo()</code> cannot resolve the variable reference for <code class="calibre14">a</code>, instead of stepping up the nested (lexical) scope chain, it walks up the call-stack, to find where <code class="calibre14">foo()</code> was <em class="calibre9">called from</em>. Since <code class="calibre14">foo()</code> was called from <code class="calibre14">bar()</code>, it checks the variables in scope for <code class="calibre14">bar()</code>, and finds an <code class="calibre14">a</code> there with value <code class="calibre14">3</code>.</p>
+<p class="calibre8">Strange? You're probably thinking so, at the moment.</p>
+<p class="calibre8">But that's just because you've probably only ever worked on (or at least deeply considered) code which is lexically scoped. So dynamic scoping seems foreign. If you had only ever written code in a dynamically scoped language, it would seem natural, and lexical scope would be the odd-ball.</p>
+<p class="calibre8">To be clear, JavaScript <strong class="calibre12">does not, in fact, have dynamic scope</strong>. It has lexical scope. Plain and simple. But the <code class="calibre14">this</code> mechanism is kind of like dynamic scope.</p>
+<p class="calibre8">The key contrast: <strong class="calibre12">lexical scope is write-time, whereas dynamic scope (and <code class="calibre14">this</code>!) are runtime</strong>. Lexical scope cares <em class="calibre9">where a function was declared</em>, but dynamic scope cares where a function was <em class="calibre9">called from</em>.</p>
+<p class="calibre8">Finally: <code class="calibre14">this</code> cares <em class="calibre9">how a function was called</em>, which shows how closely related the <code class="calibre14">this</code> mechanism is to the idea of dynamic scoping. To dig more into <code class="calibre14">this</code>, read the title "<em class="calibre9">this &amp; Object Prototypes</em>".</p>
+</div>
+</div><div class="calibre_navbar">
+<hr class="calibre6"/>
+<p class="calibre11">This article was downloaded by <strong class="calibre12">calibre</strong> from <a href="https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/apA.md" rel="calibre-downloaded-from">https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/apA.md</a></p>
+<br class="calibre5"/><br class="calibre5"/> | <a href="../index.html#article_7">Section menu</a> | <a href="../../index.html#feed_0">Main menu</a> | </div></body></html>

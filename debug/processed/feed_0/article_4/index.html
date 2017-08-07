@@ -1,0 +1,419 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>You-Dont-Know-JS/ch3.md at master · getify/You-Dont-Know-JS · GitHub</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre"><div class="calibre_navbar">| <a href="../article_5/index.html">Next</a> | <a href="../index.html#article_4">Section menu</a> | <a href="../../index.html#feed_0">Main menu</a> | <a href="../article_3/index.html">Previous</a> | <hr class="calibre6"/>
+</div><div class="calibre5"><div itemprop="text" class="calibre5"><h1 class="calibre7"><a id="user-content-you-dont-know-js-scope--closures" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#you-dont-know-js-scope--closures"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>You Don't Know JS: Scope &amp; Closures</h1>
+<h1 class="calibre7"><a id="user-content-chapter-3-function-vs-block-scope" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#chapter-3-function-vs-block-scope"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Chapter 3: Function vs. Block Scope</h1>
+<p class="calibre8">As we explored in Chapter 2, scope consists of a series of "bubbles" that each act as a container or bucket, in which identifiers (variables, functions) are declared. These bubbles nest neatly inside each other, and this nesting is defined at author-time.</p>
+<p class="calibre8">But what exactly makes a new bubble? Is it only the function? Can other structures in JavaScript create bubbles of scope?</p>
+<h2 class="calibre10"><a id="user-content-scope-from-functions" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#scope-from-functions"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Scope From Functions</h2>
+<p class="calibre8">The most common answer to those questions is that JavaScript has function-based scope. That is, each function you declare creates a bubble for itself, but no other structures create their own scope bubbles. As we'll see in just a little bit, this is not quite true.</p>
+<p class="calibre8">But first, let's explore function scope and its implications.</p>
+<p class="calibre8">Consider this code:</p>
+<div class="calibre5"><pre class="calibre16"><span>function</span> <span>foo</span>(<span>a</span>) {
+	<span>var</span> b <span>=</span> <span>2</span>;
+
+	<span><span>//</span> some code</span>
+
+	<span>function</span> <span>bar</span>() {
+		<span><span>//</span> ...</span>
+	}
+
+	<span><span>//</span> more code</span>
+
+	<span>var</span> c <span>=</span> <span>3</span>;
+}</pre></div>
+<p class="calibre8">In this snippet, the scope bubble for <code class="calibre14">foo(..)</code> includes identifiers <code class="calibre14">a</code>, <code class="calibre14">b</code>, <code class="calibre14">c</code> and <code class="calibre14">bar</code>. <strong class="calibre12">It doesn't matter</strong> <em class="calibre9">where</em> in the scope a declaration appears, the variable or function belongs to the containing scope bubble, regardless. We'll explore how exactly <em class="calibre9">that</em> works in the next chapter.</p>
+<p class="calibre8"><code class="calibre14">bar(..)</code> has its own scope bubble. So does the global scope, which has just one identifier attached to it: <code class="calibre14">foo</code>.</p>
+<p class="calibre8">Because <code class="calibre14">a</code>, <code class="calibre14">b</code>, <code class="calibre14">c</code>, and <code class="calibre14">bar</code> all belong to the scope bubble of <code class="calibre14">foo(..)</code>, they are not accessible outside of <code class="calibre14">foo(..)</code>. That is, the following code would all result in <code class="calibre14">ReferenceError</code> errors, as the identifiers are not available to the global scope:</p>
+<div class="calibre5"><pre class="calibre16"><span>bar</span>(); <span><span>//</span> fails</span>
+
+<span>console</span>.<span>log</span>( a, b, c ); <span><span>//</span> all 3 fail</span></pre></div>
+<p class="calibre8">However, all these identifiers (<code class="calibre14">a</code>, <code class="calibre14">b</code>, <code class="calibre14">c</code>, <code class="calibre14">foo</code>, and <code class="calibre14">bar</code>) are accessible <em class="calibre9">inside</em> of <code class="calibre14">foo(..)</code>, and indeed also available inside of <code class="calibre14">bar(..)</code> (assuming there are no shadow identifier declarations inside <code class="calibre14">bar(..)</code>).</p>
+<p class="calibre8">Function scope encourages the idea that all variables belong to the function, and can be used and reused throughout the entirety of the function (and indeed, accessible even to nested scopes). This design approach can be quite useful, and certainly can make full use of the "dynamic" nature of JavaScript variables to take on values of different types as needed.</p>
+<p class="calibre8">On the other hand, if you don't take careful precautions, variables existing across the entirety of a scope can lead to some unexpected pitfalls.</p>
+<h2 class="calibre10"><a id="user-content-hiding-in-plain-scope" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#hiding-in-plain-scope"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Hiding In Plain Scope</h2>
+<p class="calibre8">The traditional way of thinking about functions is that you declare a function, and then add code inside it. But the inverse thinking is equally powerful and useful: take any arbitrary section of code you've written, and wrap a function declaration around it, which in effect "hides" the code.</p>
+<p class="calibre8">The practical result is to create a scope bubble around the code in question, which means that any declarations (variable or function) in that code will now be tied to the scope of the new wrapping function, rather than the previously enclosing scope. In other words, you can "hide" variables and functions by enclosing them in the scope of a function.</p>
+<p class="calibre8">Why would "hiding" variables and functions be a useful technique?</p>
+<p class="calibre8">There's a variety of reasons motivating this scope-based hiding. They tend to arise from the software design principle "Principle of Least Privilege" [^note-leastprivilege], also sometimes called "Least Authority" or "Least Exposure". This principle states that in the design of software, such as the API for a module/object, you should expose only what is minimally necessary, and "hide" everything else.</p>
+<p class="calibre8">This principle extends to the choice of which scope to contain variables and functions. If all variables and functions were in the global scope, they would of course be accessible to any nested scope. But this would violate the "Least..." principle in that you are (likely) exposing many variables or functions which you should otherwise keep private, as proper use of the code would discourage access to those variables/functions.</p>
+<p class="calibre8">For example:</p>
+<div class="calibre5"><pre class="calibre16"><span>function</span> <span>doSomething</span>(<span>a</span>) {
+	b <span>=</span> a <span>+</span> <span>doSomethingElse</span>( a <span>*</span> <span>2</span> );
+
+	<span>console</span>.<span>log</span>( b <span>*</span> <span>3</span> );
+}
+
+<span>function</span> <span>doSomethingElse</span>(<span>a</span>) {
+	<span>return</span> a <span>-</span> <span>1</span>;
+}
+
+<span>var</span> b;
+
+<span>doSomething</span>( <span>2</span> ); <span><span>//</span> 15</span></pre></div>
+<p class="calibre8">In this snippet, the <code class="calibre14">b</code> variable and the <code class="calibre14">doSomethingElse(..)</code> function are likely "private" details of how <code class="calibre14">doSomething(..)</code> does its job. Giving the enclosing scope "access" to <code class="calibre14">b</code> and <code class="calibre14">doSomethingElse(..)</code> is not only unnecessary but also possibly "dangerous", in that they may be used in unexpected ways, intentionally or not, and this may violate pre-condition assumptions of <code class="calibre14">doSomething(..)</code>.</p>
+<p class="calibre8">A more "proper" design would hide these private details inside the scope of <code class="calibre14">doSomething(..)</code>, such as:</p>
+<div class="calibre5"><pre class="calibre16"><span>function</span> <span>doSomething</span>(<span>a</span>) {
+	<span>function</span> <span>doSomethingElse</span>(<span>a</span>) {
+		<span>return</span> a <span>-</span> <span>1</span>;
+	}
+
+	<span>var</span> b;
+
+	b <span>=</span> a <span>+</span> <span>doSomethingElse</span>( a <span>*</span> <span>2</span> );
+
+	<span>console</span>.<span>log</span>( b <span>*</span> <span>3</span> );
+}
+
+<span>doSomething</span>( <span>2</span> ); <span><span>//</span> 15</span></pre></div>
+<p class="calibre8">Now, <code class="calibre14">b</code> and <code class="calibre14">doSomethingElse(..)</code> are not accessible to any outside influence, instead controlled only by <code class="calibre14">doSomething(..)</code>. The functionality and end-result has not been affected, but the design keeps private details private, which is usually considered better software.</p>
+<h3 class="calibre15"><a id="user-content-collision-avoidance" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#collision-avoidance"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Collision Avoidance</h3>
+<p class="calibre8">Another benefit of "hiding" variables and functions inside a scope is to avoid unintended collision between two different identifiers with the same name but different intended usages. Collision results often in unexpected overwriting of values.</p>
+<p class="calibre8">For example:</p>
+<div class="calibre5"><pre class="calibre16"><span>function</span> <span>foo</span>() {
+	<span>function</span> <span>bar</span>(<span>a</span>) {
+		i <span>=</span> <span>3</span>; <span><span>//</span> changing the `i` in the enclosing scope's for-loop</span>
+		<span>console</span>.<span>log</span>( a <span>+</span> i );
+	}
+
+	<span>for</span> (<span>var</span> i<span>=</span><span>0</span>; i<span>&lt;</span><span>10</span>; i<span>++</span>) {
+		<span>bar</span>( i <span>*</span> <span>2</span> ); <span><span>//</span> oops, infinite loop ahead!</span>
+	}
+}
+
+<span>foo</span>();</pre></div>
+<p class="calibre8">The <code class="calibre14">i = 3</code> assignment inside of <code class="calibre14">bar(..)</code> overwrites, unexpectedly, the <code class="calibre14">i</code> that was declared in <code class="calibre14">foo(..)</code> at the for-loop. In this case, it will result in an infinite loop, because <code class="calibre14">i</code> is set to a fixed value of <code class="calibre14">3</code> and that will forever remain <code class="calibre14">&lt; 10</code>.</p>
+<p class="calibre8">The assignment inside <code class="calibre14">bar(..)</code> needs to declare a local variable to use, regardless of what identifier name is chosen. <code class="calibre14">var i = 3;</code> would fix the problem (and would create the previously mentioned "shadowed variable" declaration for <code class="calibre14">i</code>). An <em class="calibre9">additional</em>, not alternate, option is to pick another identifier name entirely, such as <code class="calibre14">var j = 3;</code>. But your software design may naturally call for the same identifier name, so utilizing scope to "hide" your inner declaration is your best/only option in that case.</p>
+<h4 class="calibre19"><a id="user-content-global-namespaces" aria-hidden="true" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#global-namespaces"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Global "Namespaces"</h4>
+<p class="calibre8">A particularly strong example of (likely) variable collision occurs in the global scope. Multiple libraries loaded into your program can quite easily collide with each other if they don't properly hide their internal/private functions and variables.</p>
+<p class="calibre8">Such libraries typically will create a single variable declaration, often an object, with a sufficiently unique name, in the global scope. This object is then used as a "namespace" for that library, where all specific exposures of functionality are made as properties off that object (namespace), rather than as top-level lexically scoped identifiers themselves.</p>
+<p class="calibre8">For example:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> MyReallyCoolLibrary <span>=</span> {
+	awesome<span>:</span> <span><span>"</span>stuff<span>"</span></span>,
+	<span>doSomething</span><span>:</span> <span>function</span>() {
+		<span><span>//</span> ...</span>
+	},
+	<span>doAnotherThing</span><span>:</span> <span>function</span>() {
+		<span><span>//</span> ...</span>
+	}
+};</pre></div>
+<h4 class="calibre19"><a id="user-content-module-management" aria-hidden="true" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#module-management"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Module Management</h4>
+<p class="calibre8">Another option for collision avoidance is the more modern "module" approach, using any of various dependency managers. Using these tools, no libraries ever add any identifiers to the global scope, but are instead required to have their identifier(s) be explicitly imported into another specific scope through usage of the dependency manager's various mechanisms.</p>
+<p class="calibre8">It should be observed that these tools do not possess "magic" functionality that is exempt from lexical scoping rules. They simply use the rules of scoping as explained here to enforce that no identifiers are injected into any shared scope, and are instead kept in private, non-collision-susceptible scopes, which prevents any accidental scope collisions.</p>
+<p class="calibre8">As such, you can code defensively and achieve the same results as the dependency managers do without actually needing to use them, if you so choose. See the Chapter 5 for more information about the module pattern.</p>
+<h2 class="calibre10"><a id="user-content-functions-as-scopes" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#functions-as-scopes"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Functions As Scopes</h2>
+<p class="calibre8">We've seen that we can take any snippet of code and wrap a function around it, and that effectively "hides" any enclosed variable or function declarations from the outside scope inside that function's inner scope.</p>
+<p class="calibre8">For example:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> a <span>=</span> <span>2</span>;
+
+<span>function</span> <span>foo</span>() { <span><span>//</span> &lt;-- insert this</span>
+
+	<span>var</span> a <span>=</span> <span>3</span>;
+	<span>console</span>.<span>log</span>( a ); <span><span>//</span> 3</span>
+
+} <span><span>//</span> &lt;-- and this</span>
+<span>foo</span>(); <span><span>//</span> &lt;-- and this</span>
+
+<span>console</span>.<span>log</span>( a ); <span><span>//</span> 2</span></pre></div>
+<p class="calibre8">While this technique "works", it is not necessarily very ideal. There are a few problems it introduces. The first is that we have to declare a named-function <code class="calibre14">foo()</code>, which means that the identifier name <code class="calibre14">foo</code> itself "pollutes" the enclosing scope (global, in this case). We also have to explicitly call the function by name (<code class="calibre14">foo()</code>) so that the wrapped code actually executes.</p>
+<p class="calibre8">It would be more ideal if the function didn't need a name (or, rather, the name didn't pollute the enclosing scope), and if the function could automatically be executed.</p>
+<p class="calibre8">Fortunately, JavaScript offers a solution to both problems.</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> a <span>=</span> <span>2</span>;
+
+(<span>function</span> <span>foo</span>(){ <span><span>//</span> &lt;-- insert this</span>
+
+	<span>var</span> a <span>=</span> <span>3</span>;
+	<span>console</span>.<span>log</span>( a ); <span><span>//</span> 3</span>
+
+})(); <span><span>//</span> &lt;-- and this</span>
+
+<span>console</span>.<span>log</span>( a ); <span><span>//</span> 2</span></pre></div>
+<p class="calibre8">Let's break down what's happening here.</p>
+<p class="calibre8">First, notice that the wrapping function statement starts with <code class="calibre14">(function...</code> as opposed to just <code class="calibre14">function...</code>. While this may seem like a minor detail, it's actually a major change. Instead of treating the function as a standard declaration, the function is treated as a function-expression.</p>
+<p class="calibre8"><strong class="calibre12">Note:</strong> The easiest way to distinguish declaration vs. expression is the position of the word "function" in the statement (not just a line, but a distinct statement). If "function" is the very first thing in the statement, then it's a function declaration. Otherwise, it's a function expression.</p>
+<p class="calibre8">The key difference we can observe here between a function declaration and a function expression relates to where its name is bound as an identifier.</p>
+<p class="calibre8">Compare the previous two snippets. In the first snippet, the name <code class="calibre14">foo</code> is bound in the enclosing scope, and we call it directly with <code class="calibre14">foo()</code>. In the second snippet, the name <code class="calibre14">foo</code> is not bound in the enclosing scope, but instead is bound only inside of its own function.</p>
+<p class="calibre8">In other words, <code class="calibre14">(function foo(){ .. })</code> as an expression means the identifier <code class="calibre14">foo</code> is found <em class="calibre9">only</em> in the scope where the <code class="calibre14">..</code> indicates, not in the outer scope. Hiding the name <code class="calibre14">foo</code> inside itself means it does not pollute the enclosing scope unnecessarily.</p>
+<h3 class="calibre15"><a id="user-content-anonymous-vs-named" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#anonymous-vs-named"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Anonymous vs. Named</h3>
+<p class="calibre8">You are probably most familiar with function expressions as callback parameters, such as:</p>
+<div class="calibre5"><pre class="calibre16"><span>setTimeout</span>( <span>function</span>(){
+	<span>console</span>.<span>log</span>(<span><span>"</span>I waited 1 second!<span>"</span></span>);
+}, <span>1000</span> );</pre></div>
+<p class="calibre8">This is called an "anonymous function expression", because <code class="calibre14">function()...</code> has no name identifier on it. Function expressions can be anonymous, but function declarations cannot omit the name -- that would be illegal JS grammar.</p>
+<p class="calibre8">Anonymous function expressions are quick and easy to type, and many libraries and tools tend to encourage this idiomatic style of code. However, they have several draw-backs to consider:</p>
+<ol class="calibre13">
+<li class="calibre4">
+<p class="calibre8">Anonymous functions have no useful name to display in stack traces, which can make debugging more difficult.</p>
+</li>
+<li class="calibre4">
+<p class="calibre8">Without a name, if the function needs to refer to itself, for recursion, etc., the <strong class="calibre12">deprecated</strong> <code class="calibre14">arguments.callee</code> reference is unfortunately required. Another example of needing to self-reference is when an event handler function wants to unbind itself after it fires.</p>
+</li>
+<li class="calibre4">
+<p class="calibre8">Anonymous functions omit a name that is often helpful in providing more readable/understandable code. A descriptive name helps self-document the code in question.</p>
+</li>
+</ol>
+<p class="calibre8"><strong class="calibre12">Inline function expressions</strong> are powerful and useful -- the question of anonymous vs. named doesn't detract from that. Providing a name for your function expression quite effectively addresses all these draw-backs, but has no tangible downsides. The best practice is to always name your function expressions:</p>
+<div class="calibre5"><pre class="calibre16"><span>setTimeout</span>( <span>function</span> <span>timeoutHandler</span>(){ <span><span>//</span> &lt;-- Look, I have a name!</span>
+	<span>console</span>.<span>log</span>( <span><span>"</span>I waited 1 second!<span>"</span></span> );
+}, <span>1000</span> );</pre></div>
+<h3 class="calibre15"><a id="user-content-invoking-function-expressions-immediately" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#invoking-function-expressions-immediately"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Invoking Function Expressions Immediately</h3>
+<div class="calibre5"><pre class="calibre16"><span>var</span> a <span>=</span> <span>2</span>;
+
+(<span>function</span> <span>foo</span>(){
+
+	<span>var</span> a <span>=</span> <span>3</span>;
+	<span>console</span>.<span>log</span>( a ); <span><span>//</span> 3</span>
+
+})();
+
+<span>console</span>.<span>log</span>( a ); <span><span>//</span> 2</span></pre></div>
+<p class="calibre8">Now that we have a function as an expression by virtue of wrapping it in a <code class="calibre14">( )</code> pair, we can execute that function by adding another <code class="calibre14">()</code> on the end, like <code class="calibre14">(function foo(){ .. })()</code>. The first enclosing <code class="calibre14">( )</code> pair makes the function an expression, and the second <code class="calibre14">()</code> executes the function.</p>
+<p class="calibre8">This pattern is so common, a few years ago the community agreed on a term for it: <strong class="calibre12">IIFE</strong>, which stands for <strong class="calibre12">I</strong>mmediately <strong class="calibre12">I</strong>nvoked <strong class="calibre12">F</strong>unction <strong class="calibre12">E</strong>xpression.</p>
+<p class="calibre8">Of course, IIFE's don't need names, necessarily -- the most common form of IIFE is to use an anonymous function expression. While certainly less common, naming an IIFE has all the aforementioned benefits over anonymous function expressions, so it's a good practice to adopt.</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> a <span>=</span> <span>2</span>;
+
+(<span>function</span> <span>IIFE</span>(){
+
+	<span>var</span> a <span>=</span> <span>3</span>;
+	<span>console</span>.<span>log</span>( a ); <span><span>//</span> 3</span>
+
+})();
+
+<span>console</span>.<span>log</span>( a ); <span><span>//</span> 2</span></pre></div>
+<p class="calibre8">There's a slight variation on the traditional IIFE form, which some prefer: <code class="calibre14">(function(){ .. }())</code>. Look closely to see the difference. In the first form, the function expression is wrapped in <code class="calibre14">( )</code>, and then the invoking <code class="calibre14">()</code> pair is on the outside right after it. In the second form, the invoking <code class="calibre14">()</code> pair is moved to the inside of the outer <code class="calibre14">( )</code> wrapping pair.</p>
+<p class="calibre8">These two forms are identical in functionality. <strong class="calibre12">It's purely a stylistic choice which you prefer.</strong></p>
+<p class="calibre8">Another variation on IIFE's which is quite common is to use the fact that they are, in fact, just function calls, and pass in argument(s).</p>
+<p class="calibre8">For instance:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> a <span>=</span> <span>2</span>;
+
+(<span>function</span> <span>IIFE</span>( <span>global</span> ){
+
+	<span>var</span> a <span>=</span> <span>3</span>;
+	<span>console</span>.<span>log</span>( a ); <span><span>//</span> 3</span>
+	<span>console</span>.<span>log</span>( <span>global</span>.<span>a</span> ); <span><span>//</span> 2</span>
+
+})( <span>window</span> );
+
+<span>console</span>.<span>log</span>( a ); <span><span>//</span> 2</span></pre></div>
+<p class="calibre8">We pass in the <code class="calibre14">window</code> object reference, but we name the parameter <code class="calibre14">global</code>, so that we have a clear stylistic delineation for global vs. non-global references. Of course, you can pass in anything from an enclosing scope you want, and you can name the parameter(s) anything that suits you. This is mostly just stylistic choice.</p>
+<p class="calibre8">Another application of this pattern addresses the (minor niche) concern that the default <code class="calibre14">undefined</code> identifier might have its value incorrectly overwritten, causing unexpected results. By naming a parameter <code class="calibre14">undefined</code>, but not passing any value for that argument, we can guarantee that the <code class="calibre14">undefined</code> identifier is in fact the undefined value in a block of code:</p>
+<div class="calibre5"><pre class="calibre16"><span>undefined</span> <span>=</span> <span>true</span>; <span><span>//</span> setting a land-mine for other code! avoid!</span>
+
+(<span>function</span> <span>IIFE</span>( <span>undefined</span> ){
+
+	<span>var</span> a;
+	<span>if</span> (a <span>===</span> <span>undefined</span>) {
+		<span>console</span>.<span>log</span>( <span><span>"</span>Undefined is safe here!<span>"</span></span> );
+	}
+
+})();</pre></div>
+<p class="calibre8">Still another variation of the IIFE inverts the order of things, where the function to execute is given second, <em class="calibre9">after</em> the invocation and parameters to pass to it. This pattern is used in the UMD (Universal Module Definition) project. Some people find it a little cleaner to understand, though it is slightly more verbose.</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> a <span>=</span> <span>2</span>;
+
+(<span>function</span> <span>IIFE</span>( <span>def</span> ){
+	<span>def</span>( <span>window</span> );
+})(<span>function</span> <span>def</span>( <span>global</span> ){
+
+	<span>var</span> a <span>=</span> <span>3</span>;
+	<span>console</span>.<span>log</span>( a ); <span><span>//</span> 3</span>
+	<span>console</span>.<span>log</span>( <span>global</span>.<span>a</span> ); <span><span>//</span> 2</span>
+
+});</pre></div>
+<p class="calibre8">The <code class="calibre14">def</code> function expression is defined in the second-half of the snippet, and then passed as a parameter (also called <code class="calibre14">def</code>) to the <code class="calibre14">IIFE</code> function defined in the first half of the snippet. Finally, the parameter <code class="calibre14">def</code> (the function) is invoked, passing <code class="calibre14">window</code> in as the <code class="calibre14">global</code> parameter.</p>
+<h2 class="calibre10"><a id="user-content-blocks-as-scopes" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#blocks-as-scopes"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Blocks As Scopes</h2>
+<p class="calibre8">While functions are the most common unit of scope, and certainly the most wide-spread of the design approaches in the majority of JS in circulation, other units of scope are possible, and the usage of these other scope units can lead to even better, cleaner to maintain code.</p>
+<p class="calibre8">Many languages other than JavaScript support Block Scope, and so developers from those languages are accustomed to the mindset, whereas those who've primarily only worked in JavaScript may find the concept slightly foreign.</p>
+<p class="calibre8">But even if you've never written a single line of code in block-scoped fashion, you are still probably familiar with this extremely common idiom in JavaScript:</p>
+<div class="calibre5"><pre class="calibre16"><span>for</span> (<span>var</span> i<span>=</span><span>0</span>; i<span>&lt;</span><span>10</span>; i<span>++</span>) {
+	<span>console</span>.<span>log</span>( i );
+}</pre></div>
+<p class="calibre8">We declare the variable <code class="calibre14">i</code> directly inside the for-loop head, most likely because our <em class="calibre9">intent</em> is to use <code class="calibre14">i</code> only within the context of that for-loop, and essentially ignore the fact that the variable actually scopes itself to the enclosing scope (function or global).</p>
+<p class="calibre8">That's what block-scoping is all about. Declaring variables as close as possible, as local as possible, to where they will be used. Another example:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> foo <span>=</span> <span>true</span>;
+
+<span>if</span> (foo) {
+	<span>var</span> bar <span>=</span> foo <span>*</span> <span>2</span>;
+	bar <span>=</span> <span>something</span>( bar );
+	<span>console</span>.<span>log</span>( bar );
+}</pre></div>
+<p class="calibre8">We are using a <code class="calibre14">bar</code> variable only in the context of the if-statement, so it makes a kind of sense that we would declare it inside the if-block. However, where we declare variables is not relevant when using <code class="calibre14">var</code>, because they will always belong to the enclosing scope. This snippet is essentially "fake" block-scoping, for stylistic reasons, and relying on self-enforcement not to accidentally use <code class="calibre14">bar</code> in another place in that scope.</p>
+<p class="calibre8">Block scope is a tool to extend the earlier "Principle of Least <del class="calibre20">Privilege</del> Exposure" [^note-leastprivilege] from hiding information in functions to hiding information in blocks of our code.</p>
+<p class="calibre8">Consider the for-loop example again:</p>
+<div class="calibre5"><pre class="calibre16"><span>for</span> (<span>var</span> i<span>=</span><span>0</span>; i<span>&lt;</span><span>10</span>; i<span>++</span>) {
+	<span>console</span>.<span>log</span>( i );
+}</pre></div>
+<p class="calibre8">Why pollute the entire scope of a function with the <code class="calibre14">i</code> variable that is only going to be (or only <em class="calibre9">should be</em>, at least) used for the for-loop?</p>
+<p class="calibre8">But more importantly, developers may prefer to <em class="calibre9">check</em> themselves against accidentally (re)using variables outside of their intended purpose, such as being issued an error about an unknown variable if you try to use it in the wrong place. Block-scoping (if it were possible) for the <code class="calibre14">i</code> variable would make <code class="calibre14">i</code> available only for the for-loop, causing an error if <code class="calibre14">i</code> is accessed elsewhere in the function. This helps ensure variables are not re-used in confusing or hard-to-maintain ways.</p>
+<p class="calibre8">But, the sad reality is that, on the surface, JavaScript has no facility for block scope.</p>
+<p class="calibre8">That is, until you dig a little further.</p>
+<h3 class="calibre15"><a id="user-content-with" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#with"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a><code class="calibre18">with</code></h3>
+<p class="calibre8">We learned about <code class="calibre14">with</code> in Chapter 2. While it is a frowned upon construct, it <em class="calibre9">is</em> an example of (a form of) block scope, in that the scope that is created from the object only exists for the lifetime of that <code class="calibre14">with</code> statement, and not in the enclosing scope.</p>
+<h3 class="calibre15"><a id="user-content-trycatch" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#trycatch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a><code class="calibre18">try/catch</code></h3>
+<p class="calibre8">It's a <em class="calibre9">very</em> little known fact that JavaScript in ES3 specified the variable declaration in the <code class="calibre14">catch</code> clause of a <code class="calibre14">try/catch</code> to be block-scoped to the <code class="calibre14">catch</code> block.</p>
+<p class="calibre8">For instance:</p>
+<div class="calibre5"><pre class="calibre16"><span>try</span> {
+	<span>undefined</span>(); <span><span>//</span> illegal operation to force an exception!</span>
+}
+<span>catch</span> (err) {
+	<span>console</span>.<span>log</span>( err ); <span><span>//</span> works!</span>
+}
+
+<span>console</span>.<span>log</span>( err ); <span><span>//</span> ReferenceError: `err` not found</span></pre></div>
+<p class="calibre8">As you can see, <code class="calibre14">err</code> exists only in the <code class="calibre14">catch</code> clause, and throws an error when you try to reference it elsewhere.</p>
+<p class="calibre8"><strong class="calibre12">Note:</strong> While this behavior has been specified and true of practically all standard JS environments (except perhaps old IE), many linters seem to still complain if you have two or more <code class="calibre14">catch</code> clauses in the same scope which each declare their error variable with the same identifier name. This is not actually a re-definition, since the variables are safely block-scoped, but the linters still seem to, annoyingly, complain about this fact.</p>
+<p class="calibre8">To avoid these unnecessary warnings, some devs will name their <code class="calibre14">catch</code> variables <code class="calibre14">err1</code>, <code class="calibre14">err2</code>, etc. Other devs will simply turn off the linting check for duplicate variable names.</p>
+<p class="calibre8">The block-scoping nature of <code class="calibre14">catch</code> may seem like a useless academic fact, but see Appendix B for more information on just how useful it might be.</p>
+<h3 class="calibre15"><a id="user-content-let" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#let"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a><code class="calibre18">let</code></h3>
+<p class="calibre8">Thus far, we've seen that JavaScript only has some strange niche behaviors which expose block scope functionality. If that were all we had, and <em class="calibre9">it was</em> for many, many years, then block scoping would not be terribly useful to the JavaScript developer.</p>
+<p class="calibre8">Fortunately, ES6 changes that, and introduces a new keyword <code class="calibre14">let</code> which sits alongside <code class="calibre14">var</code> as another way to declare variables.</p>
+<p class="calibre8">The <code class="calibre14">let</code> keyword attaches the variable declaration to the scope of whatever block (commonly a <code class="calibre14">{ .. }</code> pair) it's contained in. In other words, <code class="calibre14">let</code> implicitly hijacks any block's scope for its variable declaration.</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> foo <span>=</span> <span>true</span>;
+
+<span>if</span> (foo) {
+	<span>let</span> bar <span>=</span> foo <span>*</span> <span>2</span>;
+	bar <span>=</span> <span>something</span>( bar );
+	<span>console</span>.<span>log</span>( bar );
+}
+
+<span>console</span>.<span>log</span>( bar ); <span><span>//</span> ReferenceError</span></pre></div>
+<p class="calibre8">Using <code class="calibre14">let</code> to attach a variable to an existing block is somewhat implicit. It can confuse you if you're not paying close attention to which blocks have variables scoped to them, and are in the habit of moving blocks around, wrapping them in other blocks, etc., as you develop and evolve code.</p>
+<p class="calibre8">Creating explicit blocks for block-scoping can address some of these concerns, making it more obvious where variables are attached and not. Usually, explicit code is preferable over implicit or subtle code. This explicit block-scoping style is easy to achieve, and fits more naturally with how block-scoping works in other languages:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> foo <span>=</span> <span>true</span>;
+
+<span>if</span> (foo) {
+	{ <span><span>//</span> &lt;-- explicit block</span>
+		<span>let</span> bar <span>=</span> foo <span>*</span> <span>2</span>;
+		bar <span>=</span> <span>something</span>( bar );
+		<span>console</span>.<span>log</span>( bar );
+	}
+}
+
+<span>console</span>.<span>log</span>( bar ); <span><span>//</span> ReferenceError</span></pre></div>
+<p class="calibre8">We can create an arbitrary block for <code class="calibre14">let</code> to bind to by simply including a <code class="calibre14">{ .. }</code> pair anywhere a statement is valid grammar. In this case, we've made an explicit block <em class="calibre9">inside</em> the if-statement, which may be easier as a whole block to move around later in refactoring, without affecting the position and semantics of the enclosing if-statement.</p>
+<p class="calibre8"><strong class="calibre12">Note:</strong> For another way to express explicit block scopes, see Appendix B.</p>
+<p class="calibre8">In Chapter 4, we will address hoisting, which talks about declarations being taken as existing for the entire scope in which they occur.</p>
+<p class="calibre8">However, declarations made with <code class="calibre14">let</code> will <em class="calibre9">not</em> hoist to the entire scope of the block they appear in. Such declarations will not observably "exist" in the block until the declaration statement.</p>
+<div class="calibre5"><pre class="calibre16">{
+   <span>console</span>.<span>log</span>( bar ); <span><span>//</span> ReferenceError!</span>
+   <span>let</span> bar <span>=</span> <span>2</span>;
+}</pre></div>
+<h4 class="calibre19"><a id="user-content-garbage-collection" aria-hidden="true" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#garbage-collection"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Garbage Collection</h4>
+<p class="calibre8">Another reason block-scoping is useful relates to closures and garbage collection to reclaim memory. We'll briefly illustrate here, but the closure mechanism is explained in detail in Chapter 5.</p>
+<p class="calibre8">Consider:</p>
+<div class="calibre5"><pre class="calibre16"><span>function</span> <span>process</span>(<span>data</span>) {
+	<span><span>//</span> do something interesting</span>
+}
+
+<span>var</span> someReallyBigData <span>=</span> { .. };
+
+<span>process</span>( someReallyBigData );
+
+<span>var</span> btn <span>=</span> <span>document</span>.<span>getElementById</span>( <span><span>"</span>my_button<span>"</span></span> );
+
+<span>btn</span>.<span>addEventListener</span>( <span><span>"</span>click<span>"</span></span>, <span>function</span> <span>click</span>(<span>evt</span>){
+	<span>console</span>.<span>log</span>(<span><span>"</span>button clicked<span>"</span></span>);
+}, <span><span>/*</span>capturingPhase=<span>*/</span></span><span>false</span> );</pre></div>
+<p class="calibre8">The <code class="calibre14">click</code> function click handler callback doesn't <em class="calibre9">need</em> the <code class="calibre14">someReallyBigData</code> variable at all. That means, theoretically, after <code class="calibre14">process(..)</code> runs, the big memory-heavy data structure could be garbage collected. However, it's quite likely (though implementation dependent) that the JS engine will still have to keep the structure around, since the <code class="calibre14">click</code> function has a closure over the entire scope.</p>
+<p class="calibre8">Block-scoping can address this concern, making it clearer to the engine that it does not need to keep <code class="calibre14">someReallyBigData</code> around:</p>
+<div class="calibre5"><pre class="calibre16"><span>function</span> <span>process</span>(<span>data</span>) {
+	<span><span>//</span> do something interesting</span>
+}
+
+<span><span>//</span> anything declared inside this block can go away after!</span>
+{
+	<span>let</span> someReallyBigData <span>=</span> { .. };
+
+	<span>process</span>( someReallyBigData );
+}
+
+<span>var</span> btn <span>=</span> <span>document</span>.<span>getElementById</span>( <span><span>"</span>my_button<span>"</span></span> );
+
+<span>btn</span>.<span>addEventListener</span>( <span><span>"</span>click<span>"</span></span>, <span>function</span> <span>click</span>(<span>evt</span>){
+	<span>console</span>.<span>log</span>(<span><span>"</span>button clicked<span>"</span></span>);
+}, <span><span>/*</span>capturingPhase=<span>*/</span></span><span>false</span> );</pre></div>
+<p class="calibre8">Declaring explicit blocks for variables to locally bind to is a powerful tool that you can add to your code toolbox.</p>
+<h4 class="calibre19"><a id="user-content-let-loops" aria-hidden="true" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#let-loops"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a><code class="calibre14">let</code> Loops</h4>
+<p class="calibre8">A particular case where <code class="calibre14">let</code> shines is in the for-loop case as we discussed previously.</p>
+<div class="calibre5"><pre class="calibre16"><span>for</span> (<span>let</span> i<span>=</span><span>0</span>; i<span>&lt;</span><span>10</span>; i<span>++</span>) {
+	<span>console</span>.<span>log</span>( i );
+}
+
+<span>console</span>.<span>log</span>( i ); <span><span>//</span> ReferenceError</span></pre></div>
+<p class="calibre8">Not only does <code class="calibre14">let</code> in the for-loop header bind the <code class="calibre14">i</code> to the for-loop body, but in fact, it <strong class="calibre12">re-binds it</strong> to each <em class="calibre9">iteration</em> of the loop, making sure to re-assign it the value from the end of the previous loop iteration.</p>
+<p class="calibre8">Here's another way of illustrating the per-iteration binding behavior that occurs:</p>
+<div class="calibre5"><pre class="calibre16">{
+	<span>let</span> j;
+	<span>for</span> (j<span>=</span><span>0</span>; j<span>&lt;</span><span>10</span>; j<span>++</span>) {
+		<span>let</span> i <span>=</span> j; <span><span>//</span> re-bound for each iteration!</span>
+		<span>console</span>.<span>log</span>( i );
+	}
+}</pre></div>
+<p class="calibre8">The reason why this per-iteration binding is interesting will become clear in Chapter 5 when we discuss closures.</p>
+<p class="calibre8">Because <code class="calibre14">let</code> declarations attach to arbitrary blocks rather than to the enclosing function's scope (or global), there can be gotchas where existing code has a hidden reliance on function-scoped <code class="calibre14">var</code> declarations, and replacing the <code class="calibre14">var</code> with <code class="calibre14">let</code> may require additional care when refactoring code.</p>
+<p class="calibre8">Consider:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> foo <span>=</span> <span>true</span>, baz <span>=</span> <span>10</span>;
+
+<span>if</span> (foo) {
+	<span>var</span> bar <span>=</span> <span>3</span>;
+
+	<span>if</span> (baz <span>&gt;</span> bar) {
+		<span>console</span>.<span>log</span>( baz );
+	}
+
+	<span><span>//</span> ...</span>
+}</pre></div>
+<p class="calibre8">This code is fairly easily re-factored as:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> foo <span>=</span> <span>true</span>, baz <span>=</span> <span>10</span>;
+
+<span>if</span> (foo) {
+	<span>var</span> bar <span>=</span> <span>3</span>;
+
+	<span><span>//</span> ...</span>
+}
+
+<span>if</span> (baz <span>&gt;</span> bar) {
+	<span>console</span>.<span>log</span>( baz );
+}</pre></div>
+<p class="calibre8">But, be careful of such changes when using block-scoped variables:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> foo <span>=</span> <span>true</span>, baz <span>=</span> <span>10</span>;
+
+<span>if</span> (foo) {
+	<span>let</span> bar <span>=</span> <span>3</span>;
+
+	<span>if</span> (baz <span>&gt;</span> bar) { <span><span>//</span> &lt;-- don't forget `bar` when moving!</span>
+		<span>console</span>.<span>log</span>( baz );
+	}
+}</pre></div>
+<p class="calibre8">See Appendix B for an alternate (more explicit) style of block-scoping which may provide easier to maintain/refactor code that's more robust to these scenarios.</p>
+<h3 class="calibre15"><a id="user-content-const" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#const"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a><code class="calibre18">const</code></h3>
+<p class="calibre8">In addition to <code class="calibre14">let</code>, ES6 introduces <code class="calibre14">const</code>, which also creates a block-scoped variable, but whose value is fixed (constant). Any attempt to change that value at a later time results in an error.</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> foo <span>=</span> <span>true</span>;
+
+<span>if</span> (foo) {
+	<span>var</span> a <span>=</span> <span>2</span>;
+	<span>const</span> <span>b</span> <span>=</span> <span>3</span>; <span><span>//</span> block-scoped to the containing `if`</span>
+
+	a <span>=</span> <span>3</span>; <span><span>//</span> just fine!</span>
+	b <span>=</span> <span>4</span>; <span><span>//</span> error!</span>
+}
+
+<span>console</span>.<span>log</span>( a ); <span><span>//</span> 3</span>
+<span>console</span>.<span>log</span>( b ); <span><span>//</span> ReferenceError!</span></pre></div>
+<h2 class="calibre10"><a id="user-content-review-tldr" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_4/ch3.xhtml#review-tldr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Review (TL;DR)</h2>
+<p class="calibre8">Functions are the most common unit of scope in JavaScript. Variables and functions that are declared inside another function are essentially "hidden" from any of the enclosing "scopes", which is an intentional design principle of good software.</p>
+<p class="calibre8">But functions are by no means the only unit of scope. Block-scope refers to the idea that variables and functions can belong to an arbitrary block (generally, any <code class="calibre14">{ .. }</code> pair) of code, rather than only to the enclosing function.</p>
+<p class="calibre8">Starting with ES3, the <code class="calibre14">try/catch</code> structure has block-scope in the <code class="calibre14">catch</code> clause.</p>
+<p class="calibre8">In ES6, the <code class="calibre14">let</code> keyword (a cousin to the <code class="calibre14">var</code> keyword) is introduced to allow declarations of variables in any arbitrary block of code. <code class="calibre14">if (..) { let a = 2; }</code> will declare a variable <code class="calibre14">a</code> that essentially hijacks the scope of the <code class="calibre14">if</code>'s <code class="calibre14">{ .. }</code> block and attaches itself there.</p>
+<p class="calibre8">Though some seem to believe so, block scope should not be taken as an outright replacement of <code class="calibre14">var</code> function scope. Both functionalities co-exist, and developers can and should use both function-scope and block-scope techniques where respectively appropriate to produce better, more readable/maintainable code.</p>
+<p class="calibre8">[^note-leastprivilege]: <a href="http://en.wikipedia.org/wiki/Principle_of_least_privilege">Principle of Least Privilege</a></p>
+</div>
+</div><div class="calibre_navbar">
+<hr class="calibre6"/>
+<p class="calibre11">This article was downloaded by <strong class="calibre12">calibre</strong> from <a href="https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/ch3.md" rel="calibre-downloaded-from">https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/ch3.md</a></p>
+<br class="calibre5"/><br class="calibre5"/> | <a href="../index.html#article_4">Section menu</a> | <a href="../../index.html#feed_0">Main menu</a> | </div></body></html>

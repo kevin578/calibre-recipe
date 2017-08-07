@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ncx xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns="http://www.daisy.org/z3986/2005/ncx/" xml:lang="en">
+  <head>
+    <meta name="dtb:uid" content="40000681-0821-4ed0-89cf-7ed6d1fecd2e"/>
+    <meta name="dtb:depth" content="2"/>
+    <meta name="dtb:generator" content="calibre (3.6.0)"/>
+    <meta name="dtb:totalPageCount" content="0"/>
+    <meta name="dtb:maxPageNumber" content="0"/>
+  </head>
+  <docTitle>
+    <text>Table of Contents</text>
+  </docTitle>
+  <navMap>
+    <navPoint id="num_1" playOrder="1">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_1/index.html"/>
+    </navPoint>
+    <navPoint id="num_2" playOrder="2">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_2/index.html"/>
+    </navPoint>
+    <navPoint id="num_3" playOrder="3">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_3/index.html"/>
+    </navPoint>
+    <navPoint id="num_4" playOrder="4">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_4/index.html"/>
+    </navPoint>
+    <navPoint id="num_5" playOrder="5">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_5/index.html"/>
+    </navPoint>
+    <navPoint id="num_6" playOrder="6">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_6/index.html"/>
+    </navPoint>
+    <navPoint id="num_7" playOrder="7">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_7/index.html"/>
+    </navPoint>
+    <navPoint id="num_8" playOrder="8">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_8/index.html"/>
+    </navPoint>
+    <navPoint id="num_9" playOrder="9">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_9/index.html"/>
+    </navPoint>
+    <navPoint id="num_10" playOrder="10">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_10/index.html"/>
+    </navPoint>
+  </navMap>
+</ncx>

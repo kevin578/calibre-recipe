@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
+  <opf:metadata xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <dc:description>Articles in this issue:
+
+Unknown</dc:description>
+    <dc:date>2017-08-07T18:21:04.574667+00:00</dc:date>
+    <dc:creator opf:file-as="calibre" opf:role="aut">calibre</dc:creator>
+    <dc:title>My news source [Mon, 07 Aug 2017]</dc:title>
+    <dc:language>eng</dc:language>
+    <dc:contributor opf:role="bkp">calibre (3.6.0) [https://calibre-ebook.com]</dc:contributor>
+    <dc:identifier id="uuid_id" opf:scheme="uuid">cd06826c-6259-4c43-a8f8-b529a571c9a6</dc:identifier>
+    <opf:meta name="calibre:publication_type" content="periodical:unknown:My news source"/>
+    <dc:publisher>calibre</dc:publisher>
+    <opf:meta name="calibre:timestamp" content="2017-08-07T18:21:04.574616+00:00"/>
+  </opf:metadata>
+  <manifest>
+    <item href="cover.jpg" id="id16" media-type="image/jpeg"/>
+    <item href="feed_0/article_1/index.html" id="id2" media-type="application/xhtml+xml"/>
+    <item href="feed_0/article_10/index.html" id="id3" media-type="application/xhtml+xml"/>
+    <item href="feed_0/article_2/images/img1.png" id="id5" media-type="image/png"/>
+    <item href="feed_0/article_2/index.html" id="id4" media-type="application/xhtml+xml"/>
+    <item href="feed_0/article_3/images/img1.png" id="id7" media-type="image/png"/>
+    <item href="feed_0/article_3/index.html" id="id6" media-type="application/xhtml+xml"/>
+    <item href="feed_0/article_4/index.html" id="id8" media-type="application/xhtml+xml"/>
+    <item href="feed_0/article_5/index.html" id="id9" media-type="application/xhtml+xml"/>
+    <item href="feed_0/article_6/index.html" id="id10" media-type="application/xhtml+xml"/>
+    <item href="feed_0/article_7/index.html" id="id11" media-type="application/xhtml+xml"/>
+    <item href="feed_0/article_8/index.html" id="id12" media-type="application/xhtml+xml"/>
+    <item href="feed_0/article_9/index.html" id="id13" media-type="application/xhtml+xml"/>
+    <item href="feed_0/index.html" id="id1" media-type="application/xhtml+xml"/>
+    <item href="index.html" id="id14" media-type="application/xhtml+xml"/>
+    <item href="mastheadImage.jpg" id="masthead-image" media-type="image/jpeg"/>
+    <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="id14"/>
+    <itemref idref="id1"/>
+    <itemref idref="id2"/>
+    <itemref idref="id4"/>
+    <itemref idref="id6"/>
+    <itemref idref="id8"/>
+    <itemref idref="id9"/>
+    <itemref idref="id10"/>
+    <itemref idref="id11"/>
+    <itemref idref="id12"/>
+    <itemref idref="id13"/>
+    <itemref idref="id3"/>
+  </spine>
+  <guide>
+    <reference href="cover.jpg" title="Cover" type="cover"/>
+    <reference href="cover.jpg" type="other.ms-coverimage"/>
+    <reference href="mastheadImage.jpg" title="Masthead Image" type="other.masthead"/>
+    <reference href="cover.jpg" type="other.ms-coverimage-standard"/>
+  </guide>
+</package>

@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="eng">
+  <head>
+    <meta content="cd06826c-6259-4c43-a8f8-b529a571c9a6" name="dtb:uid"/>
+    <meta content="2" name="dtb:depth"/>
+    <meta content="calibre (3.6.0)" name="dtb:generator"/>
+    <meta content="0" name="dtb:totalPageCount"/>
+    <meta content="0" name="dtb:maxPageNumber"/>
+  </head>
+  <docTitle>
+    <text>My news source [Mon, 07 Aug 2017]</text>
+  </docTitle>
+  <navMap>
+    <navPoint class="chapter" id="num_1" playOrder="1">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_1/index.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_2" playOrder="2">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_2/index.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_3" playOrder="3">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_3/index.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_4" playOrder="4">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_4/index.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_5" playOrder="5">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_5/index.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_6" playOrder="6">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_6/index.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_7" playOrder="7">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_7/index.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_8" playOrder="8">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_8/index.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_9" playOrder="9">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_9/index.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_10" playOrder="10">
+      <navLabel>
+        <text>Unknown</text>
+      </navLabel>
+      <content src="feed_0/article_10/index.html"/>
+    </navPoint>
+  </navMap>
+</ncx>

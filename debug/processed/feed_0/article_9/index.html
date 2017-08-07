@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>You-Dont-Know-JS/apC.md at master · getify/You-Dont-Know-JS · GitHub</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre"><div class="calibre_navbar">| <a href="../article_10/index.html">Next</a> | <a href="../index.html#article_9">Section menu</a> | <a href="../../index.html#feed_0">Main menu</a> | <a href="../article_8/index.html">Previous</a> | <hr class="calibre6"/>
+</div><div class="calibre5"><div itemprop="text" class="calibre5"><h1 class="calibre7"><a id="user-content-you-dont-know-js-scope--closures" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_9/apC.xhtml#you-dont-know-js-scope--closures"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>You Don't Know JS: Scope &amp; Closures</h1>
+<h1 class="calibre7"><a id="user-content-appendix-c-lexical-this" aria-hidden="true" class="anchor" href="https://github.com/private/var/folders/gf/gmkqgf0j39x4np1wqmzc8t6jxsyk_x/C/calibre_3.6.0_tmp_zr8BWh/KthVmk_plumber/feed_0/article_9/apC.xhtml#appendix-c-lexical-this"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" class="octicon octicon-link" version="1.1"><path d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z" fill-rule="evenodd"/></svg></a>Appendix C: Lexical-this</h1>
+<p class="calibre8">Though this title does not address the <code class="calibre14">this</code> mechanism in any detail, there's one ES6 topic which relates <code class="calibre14">this</code> to lexical scope in an important way, which we will quickly examine.</p>
+<p class="calibre8">ES6 adds a special syntactic form of function declaration called the "arrow function". It looks like this:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> <span>foo</span> <span>=</span> <span>a</span> <span>=&gt;</span> {
+	<span>console</span>.<span>log</span>( a );
+};
+
+<span>foo</span>( <span>2</span> ); <span><span>//</span> 2</span></pre></div>
+<p class="calibre8">The so-called "fat arrow" is often mentioned as a short-hand for the <em class="calibre9">tediously verbose</em> (sarcasm) <code class="calibre14">function</code> keyword.</p>
+<p class="calibre8">But there's something much more important going on with arrow-functions that has nothing to do with saving keystrokes in your declaration.</p>
+<p class="calibre8">Briefly, this code suffers a problem:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> obj <span>=</span> {
+	id<span>:</span> <span><span>"</span>awesome<span>"</span></span>,
+	<span>cool</span><span>:</span> <span>function</span> <span>coolFn</span>() {
+		<span>console</span>.<span>log</span>( <span>this</span>.<span>id</span> );
+	}
+};
+
+<span>var</span> id <span>=</span> <span><span>"</span>not awesome<span>"</span></span>;
+
+<span>obj</span>.<span>cool</span>(); <span><span>//</span> awesome</span>
+
+<span>setTimeout</span>( <span>obj</span>.<span>cool</span>, <span>100</span> ); <span><span>//</span> not awesome</span></pre></div>
+<p class="calibre8">The problem is the loss of <code class="calibre14">this</code> binding on the <code class="calibre14">cool()</code> function. There are various ways to address that problem, but one often-repeated solution is <code class="calibre14">var self = this;</code>.</p>
+<p class="calibre8">That might look like:</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> obj <span>=</span> {
+	count<span>:</span> <span>0</span>,
+	<span>cool</span><span>:</span> <span>function</span> <span>coolFn</span>() {
+		<span>var</span> self <span>=</span> <span>this</span>;
+
+		<span>if</span> (<span>self</span>.<span>count</span> <span>&lt;</span> <span>1</span>) {
+			<span>setTimeout</span>( <span>function</span> <span>timer</span>(){
+				<span>self</span>.<span>count</span><span>++</span>;
+				<span>console</span>.<span>log</span>( <span><span>"</span>awesome?<span>"</span></span> );
+			}, <span>100</span> );
+		}
+	}
+};
+
+<span>obj</span>.<span>cool</span>(); <span><span>//</span> awesome?</span></pre></div>
+<p class="calibre8">Without getting too much into the weeds here, the <code class="calibre14">var self = this</code> "solution" just dispenses with the whole problem of understanding and properly using <code class="calibre14">this</code> binding, and instead falls back to something we're perhaps more comfortable with: lexical scope. <code class="calibre14">self</code> becomes just an identifier that can be resolved via lexical scope and closure, and cares not what happened to the <code class="calibre14">this</code> binding along the way.</p>
+<p class="calibre8">People don't like writing verbose stuff, especially when they do it over and over again. So, a motivation of ES6 is to help alleviate these scenarios, and indeed, <em class="calibre9">fix</em> common idiom problems, such as this one.</p>
+<p class="calibre8">The ES6 solution, the arrow-function, introduces a behavior called "lexical this".</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> obj <span>=</span> {
+	count<span>:</span> <span>0</span>,
+	<span>cool</span><span>:</span> <span>function</span> <span>coolFn</span>() {
+		<span>if</span> (<span>this</span>.<span>count</span> <span>&lt;</span> <span>1</span>) {
+			<span>setTimeout</span>( () <span>=&gt;</span> { <span><span>//</span> arrow-function ftw?</span>
+				<span>this</span>.<span>count</span><span>++</span>;
+				<span>console</span>.<span>log</span>( <span><span>"</span>awesome?<span>"</span></span> );
+			}, <span>100</span> );
+		}
+	}
+};
+
+<span>obj</span>.<span>cool</span>(); <span><span>//</span> awesome?</span></pre></div>
+<p class="calibre8">The short explanation is that arrow-functions do not behave at all like normal functions when it comes to their <code class="calibre14">this</code> binding. They discard all the normal rules for <code class="calibre14">this</code> binding, and instead take on the <code class="calibre14">this</code> value of their immediate lexical enclosing scope, whatever it is.</p>
+<p class="calibre8">So, in that snippet, the arrow-function doesn't get its <code class="calibre14">this</code> unbound in some unpredictable way, it just "inherits" the <code class="calibre14">this</code> binding of the <code class="calibre14">cool()</code> function (which is correct if we invoke it as shown!).</p>
+<p class="calibre8">While this makes for shorter code, my perspective is that arrow-functions are really just codifying into the language syntax a common <em class="calibre9">mistake</em> of developers, which is to confuse and conflate "this binding" rules with "lexical scope" rules.</p>
+<p class="calibre8">Put another way: why go to the trouble and verbosity of using the <code class="calibre14">this</code> style coding paradigm, only to cut it off at the knees by mixing it with lexical references. It seems natural to embrace one approach or the other for any given piece of code, and not mix them in the same piece of code.</p>
+<p class="calibre8"><strong class="calibre12">Note:</strong> one other detraction from arrow-functions is that they are anonymous, not named. See Chapter 3 for the reasons why anonymous functions are less desirable than named functions.</p>
+<p class="calibre8">A more appropriate approach, in my perspective, to this "problem", is to use and embrace the <code class="calibre14">this</code> mechanism correctly.</p>
+<div class="calibre5"><pre class="calibre16"><span>var</span> obj <span>=</span> {
+	count<span>:</span> <span>0</span>,
+	<span>cool</span><span>:</span> <span>function</span> <span>coolFn</span>() {
+		<span>if</span> (<span>this</span>.<span>count</span> <span>&lt;</span> <span>1</span>) {
+			<span>setTimeout</span>( <span>function</span> <span>timer</span>(){
+				<span>this</span>.<span>count</span><span>++</span>; <span><span>//</span> `this` is safe because of `bind(..)`</span>
+				<span>console</span>.<span>log</span>( <span><span>"</span>more awesome<span>"</span></span> );
+			}.<span>bind</span>( <span>this</span> ), <span>100</span> ); <span><span>//</span> look, `bind()`!</span>
+		}
+	}
+};
+
+<span>obj</span>.<span>cool</span>(); <span><span>//</span> more awesome</span></pre></div>
+<p class="calibre8">Whether you prefer the new lexical-this behavior of arrow-functions, or you prefer the tried-and-true <code class="calibre14">bind()</code>, it's important to note that arrow-functions are <strong class="calibre12">not</strong> just about less typing of "function".</p>
+<p class="calibre8">They have an <em class="calibre9">intentional behavioral difference</em> that we should learn and understand, and if we so choose, leverage.</p>
+<p class="calibre8">Now that we fully understand lexical scoping (and closure!), understanding lexical-this should be a breeze!</p>
+</div>
+</div><div class="calibre_navbar">
+<hr class="calibre6"/>
+<p class="calibre11">This article was downloaded by <strong class="calibre12">calibre</strong> from <a href="https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/apC.md" rel="calibre-downloaded-from">https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/apC.md</a></p>
+<br class="calibre5"/><br class="calibre5"/> | <a href="../index.html#article_9">Section menu</a> | <a href="../../index.html#feed_0">Main menu</a> | </div></body></html>
